@@ -87,17 +87,7 @@ Add this to your `./codeium/windsurf/model_config.json`:
 }
 ```
 
-### Running with SSE Local Mode
-
-To run the server using Server-Sent Events (SSE) locally instead of the default stdio transport:
-
-```bash
-env SSE_LOCAL=true SUPADATA_API_KEY=your-api-key npx -y supadata-mcp
-```
-
-Use the url: http://localhost:3000/sse
-
-### Installing via Smithery (Legacy)
+### Installing via Smithery
 
 To install Supadata for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@supadata-ai/mcp):
 
@@ -237,10 +227,6 @@ const CONFIG = {
     initialDelay: 1000, // Initial delay before first retry (in milliseconds)
     maxDelay: 10000, // Maximum delay between retries (in milliseconds)
     backoffFactor: 2, // Multiplier for exponential backoff
-  },
-  credit: {
-    warningThreshold: 1000, // Warn when credit usage reaches this level
-    criticalThreshold: 100, // Critical alert when credit usage reaches this level
   },
 };
 ```
