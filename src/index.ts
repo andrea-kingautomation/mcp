@@ -2,15 +2,12 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import {
   Tool,
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { Supadata } from '@supadata/js';
-
-import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -61,7 +58,8 @@ Extract content from any web page to Markdown format using Supadata's powerful s
       lang: {
         type: 'string',
         default: 'en',
-        description: 'Preferred language for the scraped content (ISO 639-1 code)',
+        description:
+          'Preferred language for the scraped content (ISO 639-1 code)',
       },
     },
     required: ['url'],
@@ -191,16 +189,9 @@ Check the status and retrieve results of a crawl job created with supadata_crawl
   },
 };
 
-
-
-
-
-
 interface StatusCheckOptions {
   id: string;
 }
-
-
 
 // Type guards for Supadata API
 function isScrapeOptions(args: unknown): args is { url: string } {
@@ -221,7 +212,9 @@ function isMapOptions(args: unknown): args is { url: string } {
   );
 }
 
-function isCrawlOptions(args: unknown): args is { url: string; limit?: number } {
+function isCrawlOptions(
+  args: unknown
+): args is { url: string; limit?: number } {
   return (
     typeof args === 'object' &&
     args !== null &&
@@ -238,9 +231,6 @@ function isStatusCheckOptions(args: unknown): args is StatusCheckOptions {
     typeof (args as { id: unknown }).id === 'string'
   );
 }
-
-
-
 
 // Server implementation
 const server = new Server(
@@ -261,9 +251,7 @@ const SUPADATA_API_KEY = process.env.SUPADATA_API_KEY;
 
 // Check if API key is provided
 if (!SUPADATA_API_KEY && process.env.CLOUD_SERVICE !== 'true') {
-  console.error(
-    'Error: SUPADATA_API_KEY environment variable is required'
-  );
+  console.error('Error: SUPADATA_API_KEY environment variable is required');
   process.exit(1);
 }
 
@@ -350,12 +338,7 @@ async function withRetry<T>(
 
 // Tool handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [
-    SCRAPE_TOOL,
-    MAP_TOOL,
-    CRAWL_TOOL,
-    CHECK_CRAWL_STATUS_TOOL,
-  ],
+  tools: [SCRAPE_TOOL, MAP_TOOL, CRAWL_TOOL, CHECK_CRAWL_STATUS_TOOL],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -412,7 +395,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               {
                 type: 'text',
                 text: trimResponseText(
-                  typeof response === 'string' ? response : JSON.stringify(response, null, 2)
+                  typeof response === 'string'
+                    ? response
+                    : JSON.stringify(response, null, 2)
                 ),
               },
             ],
@@ -437,9 +422,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         // Supadata map returns URLs, handle the response format
         const urls = Array.isArray(response) ? response : [response];
         return {
-          content: [
-            { type: 'text', text: trimResponseText(urls.join('\n')) },
-          ],
+          content: [{ type: 'text', text: trimResponseText(urls.join('\n')) }],
           isError: false,
         };
       }
@@ -459,8 +442,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         );
 
         // Supadata crawl returns a job ID
-        const jobId = (response as any).jobId || (response as any).id || response;
-        
+        const jobId =
+          (response as any).jobId || (response as any).id || response;
+
         return {
           content: [
             {
@@ -481,14 +465,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const response = await client.web.getCrawlResults(args.id);
         // Handle Supadata crawl results format
         return {
-          content: [{ type: 'text', text: trimResponseText(JSON.stringify(response, null, 2)) }],
+          content: [
+            {
+              type: 'text',
+              text: trimResponseText(JSON.stringify(response, null, 2)),
+            },
+          ],
           isError: false,
         };
       }
-
-
-
-
 
       default:
         return {
@@ -526,7 +511,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
-
 // Utility function to trim trailing whitespace from text responses
 // This prevents Claude API errors with "final assistant content cannot end with trailing whitespace"
 function trimResponseText(text: string): string {
@@ -534,7 +518,7 @@ function trimResponseText(text: string): string {
 }
 
 // Server startup
-async function runLocalServer() {
+async function runServer() {
   try {
     console.error('Initializing Supadata MCP Server...');
 
@@ -552,123 +536,14 @@ async function runLocalServer() {
 
     // Now that we're connected, we can send logging messages
     safeLog('info', 'Supadata MCP Server initialized successfully');
-
     console.error('Supadata MCP Server running on stdio');
   } catch (error) {
     console.error('Fatal error running server:', error);
     process.exit(1);
   }
 }
-async function runSSELocalServer() {
-  let transport: SSEServerTransport | null = null;
-  const app = express();
 
-  app.get('/sse', async (req, res) => {
-    transport = new SSEServerTransport(`/messages`, res);
-    res.on('close', () => {
-      transport = null;
-    });
-    await server.connect(transport);
-  });
-
-  // Endpoint for the client to POST messages
-  // Remove express.json() middleware - let the transport handle the body
-  app.post('/messages', (req, res) => {
-    if (transport) {
-      transport.handlePostMessage(req, res);
-    }
-  });
-
-  const PORT = process.env.PORT || 3000;
-  console.log('Starting server on port', PORT);
-  try {
-    app.listen(PORT, () => {
-      console.log(`MCP SSE Server listening on http://localhost:${PORT}`);
-      console.log(`SSE endpoint: http://localhost:${PORT}/sse`);
-      console.log(`Message endpoint: http://localhost:${PORT}/messages`);
-    });
-  } catch (error) {
-    console.error('Error starting server:', error);
-  }
-}
-
-async function runSSECloudServer() {
-  const transports: { [sessionId: string]: SSEServerTransport } = {};
-  const app = express();
-
-  app.get('/health', (req, res) => {
-    res.status(200).send('OK');
-  });
-
-  app.get('/:apiKey/sse', async (req, res) => {
-    const apiKey = req.params.apiKey;
-    const transport = new SSEServerTransport(`/${apiKey}/messages`, res);
-
-    //todo: validate api key, close if invalid
-    const compositeKey = `${apiKey}-${transport.sessionId}`;
-    transports[compositeKey] = transport;
-    res.on('close', () => {
-      delete transports[compositeKey];
-    });
-    await server.connect(transport);
-  });
-
-  // Endpoint for the client to POST messages
-  // Remove express.json() middleware - let the transport handle the body
-  app.post(
-    '/:apiKey/messages',
-    express.json(),
-    async (req: Request, res: Response) => {
-      const apiKey = req.params.apiKey;
-      const body = req.body;
-      const enrichedBody = {
-        ...body,
-      };
-
-      if (enrichedBody && enrichedBody.params && !enrichedBody.params._meta) {
-        enrichedBody.params._meta = { apiKey };
-      } else if (
-        enrichedBody &&
-        enrichedBody.params &&
-        enrichedBody.params._meta
-      ) {
-        enrichedBody.params._meta.apiKey = apiKey;
-      }
-
-      console.log('enrichedBody', enrichedBody);
-
-      const sessionId = req.query.sessionId as string;
-      const compositeKey = `${apiKey}-${sessionId}`;
-      const transport = transports[compositeKey];
-      if (transport) {
-        await transport.handlePostMessage(req, res, enrichedBody);
-      } else {
-        res.status(400).send('No transport found for sessionId');
-      }
-    }
-  );
-
-  const PORT = 3000;
-  app.listen(PORT, () => {
-    console.log(`MCP SSE Server listening on http://localhost:${PORT}`);
-    console.log(`SSE endpoint: http://localhost:${PORT}/sse`);
-    console.log(`Message endpoint: http://localhost:${PORT}/messages`);
-  });
-}
-
-if (process.env.CLOUD_SERVICE === 'true') {
-  runSSECloudServer().catch((error: any) => {
-    console.error('Fatal error running server:', error);
-    process.exit(1);
-  });
-} else if (process.env.SSE_LOCAL === 'true') {
-  runSSELocalServer().catch((error: any) => {
-    console.error('Fatal error running server:', error);
-    process.exit(1);
-  });
-} else {
-  runLocalServer().catch((error: any) => {
-    console.error('Fatal error running server:', error);
-    process.exit(1);
-  });
-}
+runServer().catch((error: any) => {
+  console.error('Fatal error running server:', error);
+  process.exit(1);
+});
