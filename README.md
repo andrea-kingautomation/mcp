@@ -74,7 +74,7 @@ Add this to your `./codeium/windsurf/model_config.json`:
 ```json
 {
   "mcpServers": {
-    "mcp-server-supadata": {
+    "supadata-mcp": {
       "command": "npx",
       "args": ["-y", "supadata-mcp"],
       "env": {
