@@ -20,6 +20,10 @@ interface RequestParams {
 }
 
 // Mock client interface using Jest mock functions
+interface MockTranscriptService extends jest.MockedFunction<(options: any) => Promise<any>> {
+  getJobStatus: jest.MockedFunction<(id: string) => Promise<any>>;
+}
+
 interface MockWebService {
   scrape: jest.MockedFunction<(url: string, options?: any) => Promise<string>>;
   map: jest.MockedFunction<(url: string, options?: any) => Promise<string[]>>;
@@ -28,6 +32,7 @@ interface MockWebService {
 }
 
 interface MockSupadataClient {
+  transcript: MockTranscriptService;
   web: MockWebService;
 }
 
@@ -39,7 +44,11 @@ describe('Supadata Tool Tests', () => {
     jest.clearAllMocks();
     
     // Create mock client with Jest mock functions
+    const mockTranscriptFn = jest.fn() as any;
+    mockTranscriptFn.getJobStatus = jest.fn();
+    
     mockClient = {
+      transcript: mockTranscriptFn,
       web: {
         scrape: jest.fn(),
         map: jest.fn(),
@@ -60,6 +69,74 @@ describe('Supadata Tool Tests', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  // Test transcript functionality
+  test('should handle transcript request', async () => {
+    const url = 'https://youtube.com/watch?v=example';
+    const options = { lang: 'en', text: false };
+
+    const mockResponse = 'Transcript content here';
+
+    mockClient.transcript.mockResolvedValueOnce(mockResponse);
+
+    const response = await requestHandler({
+      method: 'call_tool',
+      params: {
+        name: 'supadata_transcript',
+        arguments: { url, ...options },
+      },
+    });
+
+    expect(response).toEqual({
+      content: [{ type: 'text', text: 'Transcript content here' }],
+      isError: false,
+    });
+    expect(mockClient.transcript).toHaveBeenCalledWith({ url, lang: 'en', text: false });
+  });
+
+  // Test transcript with job ID response
+  test('should handle transcript request with job ID', async () => {
+    const url = 'https://youtube.com/watch?v=example';
+    const mockResponse = { jobId: 'test-transcript-job-id' };
+
+    mockClient.transcript.mockResolvedValueOnce(mockResponse);
+
+    const response = await requestHandler({
+      method: 'call_tool',
+      params: {
+        name: 'supadata_transcript',
+        arguments: { url },
+      },
+    });
+
+    expect(response.isError).toBe(false);
+    expect(response.content[0].text).toContain('test-transcript-job-id');
+    expect(mockClient.transcript).toHaveBeenCalledWith({ url });
+  });
+
+  // Test check transcript status functionality
+  test('should handle transcript status request', async () => {
+    const id = 'test-transcript-id';
+
+    const mockStatusResponse = {
+      status: 'completed',
+      result: 'Full transcript content here'
+    };
+
+    mockClient.transcript.getJobStatus.mockResolvedValueOnce(mockStatusResponse);
+
+    const response = await requestHandler({
+      method: 'call_tool',
+      params: {
+        name: 'supadata_check_transcript_status',
+        arguments: { id },
+      },
+    });
+
+    expect(response.isError).toBe(false);
+    expect(response.content[0].text).toContain('completed');
+    expect(mockClient.transcript.getJobStatus).toHaveBeenCalledWith(id);
   });
 
   // Test scrape functionality
@@ -205,6 +282,47 @@ async function handleRequest(
 ) {
   try {
     switch (name) {
+      case 'supadata_transcript': {
+        const options: any = { url: args.url };
+        if (args.lang) options.lang = args.lang;
+        if (args.text !== undefined) options.text = args.text;
+        if (args.chunkSize) options.chunkSize = args.chunkSize;
+        if (args.mode) options.mode = args.mode;
+        
+        const response = await client.transcript(options);
+        
+        // Check if response contains a job ID (async processing)
+        if (typeof response === 'object' && response !== null && 'jobId' in response) {
+          const jobId = (response as any).jobId;
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Started transcript job for ${args.url} with job ID: ${jobId}. Use supadata_check_transcript_status to check progress.`,
+              },
+            ],
+            isError: false,
+          };
+        }
+        
+        return {
+          content: [
+            { type: 'text', text: typeof response === 'string' ? response : JSON.stringify(response) },
+          ],
+          isError: false,
+        };
+      }
+      
+      case 'supadata_check_transcript_status': {
+        const response = await client.transcript.getJobStatus(args.id);
+        return {
+          content: [
+            { type: 'text', text: JSON.stringify(response, null, 2) },
+          ],
+          isError: false,
+        };
+      }
+
       case 'supadata_scrape': {
         const response = await client.web.scrape(args.url);
         return {

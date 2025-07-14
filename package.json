@@ -4,6 +4,9 @@
   "description": "MCP server for Supadata web scraping integration. Features include web scraping, batch processing, structured data extraction, and LLM-powered content analysis.",
   "type": "module",
   "module": "./src/index.ts",
+  "bin": {
+    "supadata-mcp": "dist/index.js"
+  },
   "files": [
     "dist"
   ],

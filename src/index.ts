@@ -41,6 +41,33 @@ const crawlInputSchema = {
     .describe('Maximum number of pages to crawl (1-5000, default: 100)'),
 };
 
+const transcriptInputSchema = {
+  url: z
+    .string()
+    .describe(
+      'Video or file URL to get transcript from (YouTube, TikTok, Twitter, file)'
+    ),
+  lang: z.string().optional().describe('Preferred language code (ISO 639-1)'),
+  text: z
+    .boolean()
+    .default(false)
+    .describe('Return plain text instead of formatted output'),
+  chunkSize: z
+    .number()
+    .optional()
+    .describe('Maximum characters per transcript chunk'),
+  mode: z
+    .enum(['native', 'auto', 'generate'])
+    .optional()
+    .describe('Transcript generation mode'),
+};
+
+const checkTranscriptStatusInputSchema = {
+  id: z
+    .string()
+    .describe('Transcript job ID returned from supadata_transcript'),
+};
+
 const checkCrawlStatusInputSchema = {
   id: z.string().describe('Crawl job ID returned from supadata_crawl'),
 };
@@ -111,6 +138,154 @@ export default function createServer() {
     process.exit(1);
   }
 
+  // Register transcript tool
+  server.tool(
+    'supadata_transcript',
+    `Extract transcript from supported video platforms (YouTube, TikTok, Twitter) or file URLs using Supadata's transcript API.
+
+**Purpose:** Get transcripts from video content across multiple platforms.
+**Best for:** Video content analysis, subtitle extraction, content indexing.
+
+**Usage Example:**
+\`\`\`json
+{
+  "name": "supadata_transcript",
+  "arguments": {
+    "url": "https://youtube.com/watch?v=example",
+    "lang": "en",
+    "text": false,
+    "mode": "auto"
+  }
+}
+\`\`\`
+
+**Returns:** 
+- Either immediate transcript content
+- Or job ID for asynchronous processing (use supadata_check_transcript_status)
+
+**Supported Platforms:** YouTube, TikTok, Twitter, and file URLs`,
+    transcriptInputSchema,
+    async ({ url, lang, text, chunkSize, mode }) => {
+      const apiKey = process.env.CLOUD_SERVICE
+        ? process.env.SUPADATA_API_KEY
+        : SUPADATA_API_KEY;
+
+      if (process.env.CLOUD_SERVICE && !apiKey) {
+        throw new Error('No API key provided');
+      }
+
+      const client = new Supadata({
+        apiKey: apiKey as string,
+      });
+
+      try {
+        const transcriptStartTime = Date.now();
+        console.error(
+          `Starting transcript for URL: ${url} with options: ${JSON.stringify({ lang, text, chunkSize, mode })}`
+        );
+
+        const options: any = { url };
+        if (lang) options.lang = lang;
+        if (text !== undefined) options.text = text;
+        if (chunkSize) options.chunkSize = chunkSize;
+        if (mode) options.mode = mode;
+
+        const response = await client.transcript(options);
+
+        console.error(
+          `Transcript completed in ${Date.now() - transcriptStartTime}ms`
+        );
+
+        // Check if response contains a job ID (async processing)
+        if (
+          typeof response === 'object' &&
+          response !== null &&
+          'jobId' in response
+        ) {
+          const jobId = (response as any).jobId;
+          return {
+            content: [
+              {
+                type: 'text',
+                text: trimResponseText(
+                  `Started transcript job for ${url} with job ID: ${jobId}. Use supadata_check_transcript_status to check progress.`
+                ),
+              },
+            ],
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: trimResponseText(
+                typeof response === 'string'
+                  ? response
+                  : JSON.stringify(response, null, 2)
+              ),
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        throw new Error(errorMessage);
+      }
+    }
+  );
+
+  // Register check transcript status tool
+  server.tool(
+    'supadata_check_transcript_status',
+    `Check the status and retrieve results of a transcript job created with supadata_transcript.
+
+**Purpose:** Monitor transcript job progress and retrieve completed results.
+**Workflow:** Use the job ID returned from supadata_transcript to check status and get results.
+
+**Usage Example:**
+\`\`\`json
+{
+  "name": "supadata_check_transcript_status",
+  "arguments": {
+    "id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+\`\`\`
+
+**Returns:** 
+- Job status: 'queued', 'active', 'completed', 'failed'
+- For completed jobs: Full transcript content
+- Error details if job failed
+
+**Tip:** Poll this endpoint periodically until status is 'completed' or 'failed'.`,
+    checkTranscriptStatusInputSchema,
+    async ({ id }) => {
+      const apiKey = process.env.CLOUD_SERVICE
+        ? process.env.SUPADATA_API_KEY
+        : SUPADATA_API_KEY;
+
+      if (process.env.CLOUD_SERVICE && !apiKey) {
+        throw new Error('No API key provided');
+      }
+
+      const client = new Supadata({
+        apiKey: apiKey as string,
+      });
+
+      const response = await client.transcript.getJobStatus(id);
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: trimResponseText(JSON.stringify(response, null, 2)),
+          },
+        ],
+      };
+    }
+  );
+
   // Register scrape tool
   server.tool(
     'supadata_scrape',
@@ -118,7 +293,6 @@ export default function createServer() {
 
 **Purpose:** Single page content extraction with automatic formatting to Markdown.
 **Best for:** When you know exactly which page contains the information you need.
-**Pricing:** 1 scrape request = 1 credit.
 
 **Usage Example:**
 \`\`\`json
@@ -137,9 +311,7 @@ export default function createServer() {
 - Extracted content in Markdown format
 - Page name and description
 - Character count
-- List of URLs found on the page
-
-**Important:** Respect robots.txt and website terms of service when scraping web content.`,
+- List of URLs found on the page`,
     scrapeInputSchema,
     async ({ url, noLinks, lang }) => {
       const apiKey = process.env.CLOUD_SERVICE
@@ -192,7 +364,6 @@ export default function createServer() {
 **Purpose:** Extract all links found on a website for content discovery and sitemap creation.
 **Best for:** Website content discovery, SEO analysis, content aggregation, automated web scraping and indexing.
 **Use cases:** Creating a sitemap, running a crawler to fetch content from all pages of a website.
-**Pricing:** 1 map request = 1 credit.
 
 **Usage Example:**
 \`\`\`json
@@ -204,9 +375,7 @@ export default function createServer() {
 }
 \`\`\`
 
-**Returns:** Array of URLs found on the website.
-
-**Important:** Respect robots.txt and website terms of service when mapping web content.`,
+**Returns:** Array of URLs found on the website.`,
     mapInputSchema,
     async ({ url }) => {
       const apiKey = process.env.CLOUD_SERVICE
@@ -243,7 +412,6 @@ export default function createServer() {
 **Purpose:** Crawl a whole website and get content of all pages on it.
 **Best for:** Extracting content from multiple related pages when you need comprehensive coverage.
 **Workflow:** 1) Create crawl job → 2) Receive job ID → 3) Check job status and retrieve results
-**Pricing:** 1 crawl request = 1 credit, 1 crawled page = 1 credit.
 
 **Crawling Behavior:**
 - Follows only child links within the specified domain

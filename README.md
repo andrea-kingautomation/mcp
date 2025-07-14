@@ -4,13 +4,11 @@ A Model Context Protocol (MCP) server implementation that integrates with [Supad
 
 ## Features
 
+- **Video transcript extraction** from YouTube, TikTok, Twitter, and file URLs
 - Web scraping, crawling, and discovery
-- Search and content extraction
-- Batch scraping
 - Automatic retries and rate limiting
-- SSE support
 
-> Play around with [our MCP Server on MCP.so's playground](https://mcp.so/playground?server=supadata-mcp) or on [Klavis AI](https://www.klavis.ai/mcp-servers).
+> Play around with [our MCP Server on MCP.so's playground](https://mcp.so/playground?server=supadata-mcp) or on [Smithery](https://smithery.ai/server/@supadata-ai/mcp).
 
 ## Installation
 
@@ -197,19 +195,11 @@ Add this to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "mcp-server-supadata": {
+    "supadata-mcp": {
       "command": "npx",
       "args": ["-y", "supadata-mcp"],
       "env": {
-        "SUPADATA_API_KEY": "YOUR_API_KEY_HERE",
-
-        "SUPADATA_RETRY_MAX_ATTEMPTS": "5",
-        "SUPADATA_RETRY_INITIAL_DELAY": "2000",
-        "SUPADATA_RETRY_MAX_DELAY": "30000",
-        "SUPADATA_RETRY_BACKOFF_FACTOR": "3",
-
-        "SUPADATA_CREDIT_WARNING_THRESHOLD": "2000",
-        "SUPADATA_CREDIT_CRITICAL_THRESHOLD": "500"
+        "SUPADATA_API_KEY": "YOUR_API_KEY_HERE"
       }
     }
   }
@@ -262,6 +252,7 @@ The server utilizes Supadata's built-in rate limiting and batch processing capab
 
 Use this guide to select the right tool for your task:
 
+- **If you need transcripts from video content:** use **transcript**
 - **If you know the exact URL(s) you want:**
   - For one: use **scrape**
   - For many: use **batch_scrape**
@@ -270,15 +261,72 @@ Use this guide to select the right tool for your task:
 
 ### Quick Reference Table
 
-| Tool   | Best for                            | Returns         |
-| ------ | ----------------------------------- | --------------- |
-| scrape | Single page content                 | markdown/html   |
-| map    | Discovering URLs on a site          | URL[]           |
-| crawl  | Multi-page extraction (with limits) | markdown/html[] |
+| Tool       | Best for                            | Returns         |
+| ---------- | ----------------------------------- | --------------- |
+| transcript | Video transcript extraction         | text/markdown   |
+| scrape     | Single page content                 | markdown/html   |
+| map        | Discovering URLs on a site          | URL[]           |
+| crawl      | Multi-page extraction (with limits) | markdown/html[] |
 
 ## Available Tools
 
-### 1. Scrape Tool (`supadata_scrape`)
+### 1. Transcript Tool (`supadata_transcript`)
+
+Extract transcripts from supported video platforms and file URLs.
+
+**Best for:**
+
+- Video content analysis and transcript extraction from YouTube, TikTok, Twitter, and file URLs.
+
+**Not recommended for:**
+
+- Non-video content (use scrape for web pages)
+
+**Common mistakes:**
+
+- Using transcript for regular web pages (use scrape instead).
+
+**Prompt Example:**
+
+> "Get the transcript from this YouTube video: https://youtube.com/watch?v=example"
+
+**Usage Example:**
+
+```json
+{
+  "name": "supadata_transcript",
+  "arguments": {
+    "url": "https://youtube.com/watch?v=example",
+    "lang": "en",
+    "text": false,
+    "mode": "auto"
+  }
+}
+```
+
+**Returns:**
+
+- Transcript content in text or formatted output
+- For async processing: Job ID for status checking
+
+### 2. Check Transcript Status (`supadata_check_transcript_status`)
+
+Check the status of a transcript job.
+
+```json
+{
+  "name": "supadata_check_transcript_status",
+  "arguments": {
+    "id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+**Returns:**
+
+- Response includes the status of the transcript job with completion progress and results.
+
+### 3. Scrape Tool (`supadata_scrape`)
 
 Scrape content from a single URL with advanced options.
 
@@ -321,7 +369,7 @@ Scrape content from a single URL with advanced options.
 
 - Markdown, HTML, or other formats as specified.
 
-### 2. Map Tool (`supadata_map`)
+### 4. Map Tool (`supadata_map`)
 
 Map a website to discover all indexed URLs on the site.
 
@@ -358,7 +406,7 @@ Map a website to discover all indexed URLs on the site.
 
 - Array of URLs found on the site
 
-### 3. Crawl Tool (`supadata_crawl`)
+### 5. Crawl Tool (`supadata_crawl`)
 
 Starts an asynchronous crawl job on a website and extract content from all pages.
 
@@ -414,7 +462,7 @@ Starts an asynchronous crawl job on a website and extract content from all pages
 }
 ```
 
-### 4. Check Crawl Status (`supadata_check_crawl_status`)
+### 6. Check Crawl Status (`supadata_check_crawl_status`)
 
 Check the status of a crawl job.
 
