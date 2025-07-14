@@ -8,7 +8,7 @@ A Model Context Protocol (MCP) server implementation that integrates with [Supad
 - Web scraping, crawling, and discovery
 - Automatic retries and rate limiting
 
-> Play around with [our MCP Server on MCP.so's playground](https://mcp.so/playground?server=supadata-mcp) or on [Smithery](https://smithery.ai/server/@supadata-ai/mcp).
+> Play around with our MCP Server on [Smithery](https://smithery.ai/server/@supadata-ai/mcp) or on [MCP.so's playground](https://mcp.so/playground?server_uuid=5aaa7226-5a7b-47a7-993c-7c076e0e5d8c).
 
 ## Installation
 
@@ -97,7 +97,7 @@ npx -y @smithery/cli install @supadata-ai/mcp --client claude
 
 For one-click installation, click one of the install buttons below...
 
-[![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-NPM-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=supadata&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22apiKey%22%2C%22description%22%3A%22Supadata%20API%20Key%22%2C%22password%22%3Atrue%7D%5D&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22supadata-mcp%22%5D%2C%22env%22%3A%7B%22SUPADATA_API_KEY%22%3A%22%24%7Binput%3AapiKey%7D%22%7D%7D) [![Install with NPX in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-NPM-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=supadata&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22apiKey%22%2C%22description%22%3A%22Supadata%20API%20Key%22%2C%22password%22%3Atrue%7D%5D&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22supadata-mcp%22%5D%2C%22env%22%3A%7B%22SUPADATA_API_KEY%22%3A%22%24%7Binput%3AapiKey%7D%22%7D%7D&quality=insiders)
+[![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-NPM-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=supadata-mcp&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22apiKey%22%2C%22description%22%3A%22Supadata%20API%20Key%22%2C%22password%22%3Atrue%7D%5D&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22supadata-mcp%22%5D%2C%22env%22%3A%7B%22SUPADATA_API_KEY%22%3A%22%24%7Binput%3AapiKey%7D%22%7D%7D) [![Install with NPX in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-NPM-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=supadata-mcp&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22apiKey%22%2C%22description%22%3A%22Supadata%20API%20Key%22%2C%22password%22%3Atrue%7D%5D&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22supadata-mcp%22%5D%2C%22env%22%3A%7B%22SUPADATA_API_KEY%22%3A%22%24%7Binput%3AapiKey%7D%22%7D%7D&quality=insiders)
 
 For manual installation, add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`.
 
@@ -155,39 +155,6 @@ Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace
 
 - `SUPADATA_API_KEY`: Your Supadata API key
 
-#### Optional Configuration
-
-##### Retry Configuration
-
-- `SUPADATA_RETRY_MAX_ATTEMPTS`: Maximum number of retry attempts (default: 3)
-- `SUPADATA_RETRY_INITIAL_DELAY`: Initial delay in milliseconds before first retry (default: 1000)
-- `SUPADATA_RETRY_MAX_DELAY`: Maximum delay in milliseconds between retries (default: 10000)
-- `SUPADATA_RETRY_BACKOFF_FACTOR`: Exponential backoff multiplier (default: 2)
-
-##### Credit Usage Monitoring
-
-- `SUPADATA_CREDIT_WARNING_THRESHOLD`: Credit usage warning threshold (default: 1000)
-- `SUPADATA_CREDIT_CRITICAL_THRESHOLD`: Credit usage critical threshold (default: 100)
-
-### Configuration Examples
-
-Example configuration with custom retry and credit monitoring:
-
-```bash
-# API key
-export SUPADATA_API_KEY=your-api-key
-
-# Optional retry configuration
-export SUPADATA_RETRY_MAX_ATTEMPTS=5        # Increase max retry attempts
-export SUPADATA_RETRY_INITIAL_DELAY=2000    # Start with 2s delay
-export SUPADATA_RETRY_MAX_DELAY=30000       # Maximum 30s delay
-export SUPADATA_RETRY_BACKOFF_FACTOR=3      # More aggressive backoff
-
-# Optional credit monitoring
-export SUPADATA_CREDIT_WARNING_THRESHOLD=2000    # Warning at 2000 credits
-export SUPADATA_CREDIT_CRITICAL_THRESHOLD=500    # Critical at 500 credits
-```
-
 ### Usage with Claude Desktop
 
 Add this to your `claude_desktop_config.json`:
@@ -210,7 +177,7 @@ Add this to your `claude_desktop_config.json`:
 
 The server includes several configurable parameters that can be set via environment variables. Here are the default values if not configured:
 
-```typescript
+````typescript
 const CONFIG = {
   retry: {
     maxAttempts: 3, // Number of retry attempts for rate-limited requests
@@ -219,27 +186,7 @@ const CONFIG = {
     backoffFactor: 2, // Multiplier for exponential backoff
   },
 };
-```
-
-These configurations control:
-
-1. **Retry Behavior**
-   - Automatically retries failed requests due to rate limits
-   - Uses exponential backoff to avoid overwhelming the API
-   - Example: With default settings, retries will be attempted at:
-     - 1st retry: 1 second delay
-     - 2nd retry: 2 seconds delay
-     - 3rd retry: 4 seconds delay (capped at maxDelay)
-
-2. **Credit Usage Monitoring**
-   - Tracks API credit consumption
-   - Provides warnings at specified thresholds
-   - Helps prevent unexpected service interruption
-   - Example: With default settings:
-     - Warning at 1000 credits remaining
-     - Critical alert at 100 credits remaining
-
-### Rate Limiting and Batch Processing
+```### Rate Limiting and Batch Processing
 
 The server utilizes Supadata's built-in rate limiting and batch processing capabilities:
 
@@ -302,7 +249,7 @@ Extract transcripts from supported video platforms and file URLs.
     "mode": "auto"
   }
 }
-```
+````
 
 **Returns:**
 
@@ -542,12 +489,6 @@ npm test
 2. Create your feature branch
 3. Run tests: `npm test`
 4. Submit a pull request
-
-### Thanks to contributors
-
-Thanks to [@vrknetha](https://github.com/vrknetha), [@cawstudios](https://caw.tech) for the initial implementation!
-
-Thanks to MCP.so and Klavis AI for hosting and [@gstarwd](https://github.com/gstarwd), [@xiangkaiz](https://github.com/xiangkaiz) and [@zihaolin96](https://github.com/zihaolin96) for integrating our server.
 
 ## License
 
