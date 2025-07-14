@@ -1,6 +1,6 @@
 # Supadata MCP Server
 
-A Model Context Protocol (MCP) server implementation that integrates with [Supadata](https://supadata.ai) for web scraping capabilities.
+A Model Context Protocol (MCP) server implementation that integrates with [Supadata](https://supadata.ai) for video & web scraping capabilities.
 
 ## Features
 

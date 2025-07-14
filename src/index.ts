@@ -546,9 +546,7 @@ async function runServer() {
 }
 
 // Only run the server if this file is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  runServer().catch((error: any) => {
-    console.error('Fatal error running server:', error);
-    process.exit(1);
-  });
-}
+runServer().catch((error: any) => {
+  console.error('Fatal error running server:', error);
+  process.exit(1);
+});
