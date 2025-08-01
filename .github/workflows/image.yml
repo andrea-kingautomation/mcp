@@ -37,6 +37,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/supadata-ai/mcp:latest
+          tags: ghcr.io/supadata-ai/mcp:v0.1.0
           cache-from: type=registry,ref=ghcr.io/supadata-ai/mcp:latest
           cache-to: type=inline
