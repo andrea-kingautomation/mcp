@@ -4,7 +4,7 @@ A Model Context Protocol (MCP) server implementation that integrates with [Supad
 
 ## Features
 
-- **Video transcript extraction** from YouTube, TikTok, Twitter, and file URLs
+- **Video transcript extraction** from YouTube, TikTok, Instagram, Twitter, and file URLs
 - Web scraping, crawling, and discovery
 - Automatic retries and rate limiting
 
@@ -15,13 +15,13 @@ A Model Context Protocol (MCP) server implementation that integrates with [Supad
 ### Running with npx
 
 ```bash
-env SUPADATA_API_KEY=your-api-key npx -y supadata-mcp
+env SUPADATA_API_KEY=your-api-key npx -y @supadata/mcp
 ```
 
 ### Manual Installation
 
 ```bash
-npm install -g supadata-mcp
+npm install -g @supadata/mcp
 ```
 
 ### Running on Cursor
@@ -40,9 +40,9 @@ To configure Supadata MCP in Cursor **v0.48.6**
    ```json
    {
      "mcpServers": {
-       "supadata-mcp": {
+       "@supadata/mcp": {
          "command": "npx",
-         "args": ["-y", "supadata-mcp"],
+         "args": ["-y", "@supadata/mcp"],
          "env": {
            "SUPADATA_API_KEY": "YOUR-API-KEY"
          }
@@ -57,11 +57,11 @@ To configure Supadata MCP in Cursor **v0.45.6**
 2. Go to Features > MCP Servers
 3. Click "+ Add New MCP Server"
 4. Enter the following:
-   - Name: "supadata-mcp" (or your preferred name)
+   - Name: "@supadata/mcp" (or your preferred name)
    - Type: "command"
-   - Command: `env SUPADATA_API_KEY=your-api-key npx -y supadata-mcp`
+   - Command: `env SUPADATA_API_KEY=your-api-key npx -y @supadata/mcp`
 
-> If you are using Windows and are running into issues, try `cmd /c "set SUPADATA_API_KEY=your-api-key && npx -y supadata-mcp"`
+> If you are using Windows and are running into issues, try `cmd /c "set SUPADATA_API_KEY=your-api-key && npx -y @supadata/mcp"`
 
 Replace `your-api-key` with your Supadata API key. If you don't have one yet, you can create an account and get it from https://www.supadata.dev/app/api-keys
 
@@ -74,9 +74,9 @@ Add this to your `./codeium/windsurf/model_config.json`:
 ```json
 {
   "mcpServers": {
-    "supadata-mcp": {
+    "@supadata/mcp": {
       "command": "npx",
-      "args": ["-y", "supadata-mcp"],
+      "args": ["-y", "@supadata/mcp"],
       "env": {
         "SUPADATA_API_KEY": "YOUR_API_KEY"
       }
@@ -97,7 +97,7 @@ npx -y @smithery/cli install @supadata-ai/mcp --client claude
 
 For one-click installation, click one of the install buttons below...
 
-[![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-NPM-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=supadata-mcp&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22apiKey%22%2C%22description%22%3A%22Supadata%20API%20Key%22%2C%22password%22%3Atrue%7D%5D&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22supadata-mcp%22%5D%2C%22env%22%3A%7B%22SUPADATA_API_KEY%22%3A%22%24%7Binput%3AapiKey%7D%22%7D%7D) [![Install with NPX in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-NPM-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=supadata-mcp&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22apiKey%22%2C%22description%22%3A%22Supadata%20API%20Key%22%2C%22password%22%3Atrue%7D%5D&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22supadata-mcp%22%5D%2C%22env%22%3A%7B%22SUPADATA_API_KEY%22%3A%22%24%7Binput%3AapiKey%7D%22%7D%7D&quality=insiders)
+[![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-NPM-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=@supadata/mcp&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22apiKey%22%2C%22description%22%3A%22Supadata%20API%20Key%22%2C%22password%22%3Atrue%7D%5D&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22@supadata/mcp%22%5D%2C%22env%22%3A%7B%22SUPADATA_API_KEY%22%3A%22%24%7Binput%3AapiKey%7D%22%7D%7D) [![Install with NPX in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-NPM-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=@supadata/mcp&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22apiKey%22%2C%22description%22%3A%22Supadata%20API%20Key%22%2C%22password%22%3Atrue%7D%5D&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22@supadata/mcp%22%5D%2C%22env%22%3A%7B%22SUPADATA_API_KEY%22%3A%22%24%7Binput%3AapiKey%7D%22%7D%7D&quality=insiders)
 
 For manual installation, add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`.
 
@@ -115,7 +115,7 @@ For manual installation, add the following JSON block to your User Settings (JSO
     "servers": {
       "supadata": {
         "command": "npx",
-        "args": ["-y", "supadata-mcp"],
+        "args": ["-y", "@supadata/mcp"],
         "env": {
           "SUPADATA_API_KEY": "${input:apiKey}"
         }
@@ -140,7 +140,7 @@ Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace
   "servers": {
     "supadata": {
       "command": "npx",
-      "args": ["-y", "supadata-mcp"],
+      "args": ["-y", "@supadata/mcp"],
       "env": {
         "SUPADATA_API_KEY": "${input:apiKey}"
       }
@@ -162,9 +162,9 @@ Add this to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "supadata-mcp": {
+    "@supadata/mcp": {
       "command": "npx",
-      "args": ["-y", "supadata-mcp"],
+      "args": ["-y", "@supadata/mcp"],
       "env": {
         "SUPADATA_API_KEY": "YOUR_API_KEY_HERE"
       }
@@ -177,7 +177,7 @@ Add this to your `claude_desktop_config.json`:
 
 The server includes several configurable parameters that can be set via environment variables. Here are the default values if not configured:
 
-````typescript
+```typescript
 const CONFIG = {
   retry: {
     maxAttempts: 3, // Number of retry attempts for rate-limited requests
@@ -186,7 +186,9 @@ const CONFIG = {
     backoffFactor: 2, // Multiplier for exponential backoff
   },
 };
-```### Rate Limiting and Batch Processing
+```
+
+### Rate Limiting and Batch Processing
 
 The server utilizes Supadata's built-in rate limiting and batch processing capabilities:
 
@@ -200,9 +202,7 @@ The server utilizes Supadata's built-in rate limiting and batch processing capab
 Use this guide to select the right tool for your task:
 
 - **If you need transcripts from video content:** use **transcript**
-- **If you know the exact URL(s) you want:**
-  - For one: use **scrape**
-  - For many: use **batch_scrape**
+- **If you know the exact URL(s) you want:** use **scrape**
 - **If you need to discover URLs on a site:** use **map**
 - **If you want to analyze a whole site or section:** use **crawl** (with limits!)
 
@@ -223,7 +223,7 @@ Extract transcripts from supported video platforms and file URLs.
 
 **Best for:**
 
-- Video content analysis and transcript extraction from YouTube, TikTok, Twitter, and file URLs.
+- Video content analysis and transcript extraction from YouTube, TikTok, Instagram, Twitter, and file URLs.
 
 **Not recommended for:**
 
@@ -249,7 +249,7 @@ Extract transcripts from supported video platforms and file URLs.
     "mode": "auto"
   }
 }
-````
+```
 
 **Returns:**
 
@@ -283,11 +283,11 @@ Scrape content from a single URL with advanced options.
 
 **Not recommended for:**
 
-- Extracting content from multiple pages (use batch_scrape for known URLs, or map + batch_scrape to discover URLs first, or crawl for full page content)
+- Extracting content from multiple pages (use crawl for comprehensive multi-page extraction)
 
 **Common mistakes:**
 
-- Using scrape for a list of URLs (use batch_scrape instead).
+- Using scrape for a list of URLs (use crawl instead for multiple pages).
 
 **Prompt Example:**
 
@@ -300,21 +300,19 @@ Scrape content from a single URL with advanced options.
   "name": "supadata_scrape",
   "arguments": {
     "url": "https://example.com",
-    "formats": ["markdown"],
-    "onlyMainContent": true,
-    "waitFor": 1000,
-    "timeout": 30000,
-    "mobile": false,
-    "includeTags": ["article", "main"],
-    "excludeTags": ["nav", "footer"],
-    "skipTlsVerification": false
+    "noLinks": false,
+    "lang": "en"
   }
 }
 ```
 
 **Returns:**
 
-- Markdown, HTML, or other formats as specified.
+- URL of the scraped page
+- Extracted content in Markdown format
+- Page name and description
+- Character count
+- List of URLs found on the page
 
 ### 4. Map Tool (`supadata_map`)
 
@@ -327,7 +325,7 @@ Map a website to discover all indexed URLs on the site.
 
 **Not recommended for:**
 
-- When you already know which specific URL you need (use scrape or batch_scrape)
+- When you already know which specific URL you need (use scrape)
 - When you need the content of the pages (use scrape after mapping)
 
 **Common mistakes:**
@@ -364,19 +362,19 @@ Starts an asynchronous crawl job on a website and extract content from all pages
 **Not recommended for:**
 
 - Extracting content from a single page (use scrape)
-- When token limits are a concern (use map + batch_scrape)
+- When token limits are a concern (use map first to discover URLs, then scrape individual pages)
 - When you need fast results (crawling can be slow)
 
-**Warning:** Crawl responses can be very large and may exceed token limits. Limit the crawl depth and number of pages, or use map + batch_scrape for better control.
+**Warning:** Crawl responses can be very large and may exceed token limits. Limit the number of pages to crawl for better control.
 
 **Common mistakes:**
 
-- Setting limit or maxDepth too high (causes token overflow)
+- Setting limit too high (causes token overflow)
 - Using crawl for a single page (use scrape instead)
 
 **Prompt Example:**
 
-> "Get all blog posts from the first two levels of example.com/blog."
+> "Get all pages from example.com/blog."
 
 **Usage Example:**
 
@@ -384,11 +382,8 @@ Starts an asynchronous crawl job on a website and extract content from all pages
 {
   "name": "supadata_crawl",
   "arguments": {
-    "url": "https://example.com/blog/*",
-    "maxDepth": 2,
-    "limit": 100,
-    "allowExternalLinks": false,
-    "deduplicateSimilarURLs": true
+    "url": "https://example.com/blog",
+    "limit": 100
   }
 }
 ```
@@ -425,50 +420,6 @@ Check the status of a crawl job.
 **Returns:**
 
 - Response includes the status of the crawl job with details on completion progress and results.
-
-## Logging System
-
-The server includes comprehensive logging:
-
-- Operation status and progress
-- Performance metrics
-- Credit usage monitoring
-- Rate limit tracking
-- Error conditions
-
-Example log messages:
-
-```
-[INFO] Supadata MCP Server initialized successfully
-[INFO] Starting scrape for URL: https://example.com
-[INFO] Batch operation queued with ID: batch_1
-[WARNING] Credit usage has reached warning threshold
-[ERROR] Rate limit exceeded, retrying in 2s...
-```
-
-## Error Handling
-
-The server provides robust error handling:
-
-- Automatic retries for transient errors
-- Rate limit handling with backoff
-- Detailed error messages
-- Credit usage warnings
-- Network resilience
-
-Example error response:
-
-```json
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "Error: Rate limit exceeded. Retrying in 2 seconds..."
-    }
-  ],
-  "isError": true
-}
-```
 
 ## Development
 

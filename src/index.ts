@@ -45,7 +45,7 @@ const transcriptInputSchema = {
   url: z
     .string()
     .describe(
-      'Video or file URL to get transcript from (YouTube, TikTok, Twitter, file)'
+      'Video or file URL to get transcript from (YouTube, TikTok, Instagram, Twitter, file)'
     ),
   lang: z.string().optional().describe('Preferred language code (ISO 639-1)'),
   text: z
@@ -125,7 +125,7 @@ async function withRetry<T>(
 
 export default function createServer() {
   const server = new McpServer({
-    name: 'supadata-mcp',
+    name: '@supadata/mcp',
     version: '1.0.0',
   });
 
@@ -141,7 +141,7 @@ export default function createServer() {
   // Register transcript tool
   server.tool(
     'supadata_transcript',
-    `Extract transcript from supported video platforms (YouTube, TikTok, Twitter) or file URLs using Supadata's transcript API.
+    `Extract transcript from supported video platforms (YouTube, TikTok, Instagram, Twitter) or file URLs using Supadata's transcript API.
 
 **Purpose:** Get transcripts from video content across multiple platforms.
 **Best for:** Video content analysis, subtitle extraction, content indexing.
@@ -163,7 +163,7 @@ export default function createServer() {
 - Either immediate transcript content
 - Or job ID for asynchronous processing (use supadata_check_transcript_status)
 
-**Supported Platforms:** YouTube, TikTok, Twitter, and file URLs`,
+**Supported Platforms:** YouTube, TikTok, Instagram, Twitter, and file URLs`,
     transcriptInputSchema,
     async ({ url, lang, text, chunkSize, mode }) => {
       const apiKey = process.env.CLOUD_SERVICE
