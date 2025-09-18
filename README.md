@@ -63,7 +63,7 @@ To configure Supadata MCP in Cursor **v0.45.6**
 
 > If you are using Windows and are running into issues, try `cmd /c "set SUPADATA_API_KEY=your-api-key && npx -y @supadata/mcp"`
 
-Replace `your-api-key` with your Supadata API key. If you don't have one yet, you can create an account and get it from https://www.supadata.dev/app/api-keys
+Replace `your-api-key` with your Supadata API key. If you don't have one yet, you can create an account and get it from https://dash.supadata.ai
 
 After adding, refresh the MCP server list to see the new tools. The Composer Agent will automatically use Supadata MCP when appropriate, but you can explicitly request it by describing your web scraping needs. Access the Composer via Command+L (Mac), select "Agent" next to the submit button, and enter your query.
 
